@@ -33,11 +33,11 @@ import { cva } from "class-variance-authority";
 import { cn } from "~/lib/cn";
 import type { Route } from "./+types/($locale).products.$handle";
 
-export function meta({ data, matches }: Route.MetaArgs) {
-  if (!data) return generateMeta();
+export function meta({ loaderData, matches }: Route.MetaArgs) {
+  if (!loaderData) return generateMeta();
 
-  let { product } = data;
-  let { siteUrl } = matches[0].data;
+  let { product } = loaderData;
+  let { siteUrl } = matches[0].loaderData;
 
   let image = product.images.nodes[0].url;
 
@@ -98,7 +98,7 @@ export default function Product({ loaderData }: Route.ComponentProps) {
 
 function CollectionsMenu({ menu }: { menu: MenuItem[] }) {
   return (
-    <nav className="sticky top-(--header-height) hidden h-fit min-w-fit md:block lg:pt-32">
+    <nav className="sticky top-(--header-height) hidden h-fit min-w-fit lg:block lg:pt-32">
       <ul className="flex flex-col gap-1">
         {menu.map((item) => {
           if (!item.to) return null;
@@ -117,7 +117,7 @@ function MenuLink({ to, children }: { to: string; children: React.ReactNode }) {
   let { url } = useRelativeUrl(to);
   return (
     <Link
-      className="text-xs/5 text-white/90 hover:text-blue-600 lg:text-base/6"
+      className="text-xs/5 text-white/90 hover:text-blue-brand lg:text-base/6"
       to={url}
       prefetch="intent"
     >

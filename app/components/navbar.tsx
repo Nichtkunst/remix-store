@@ -17,6 +17,7 @@ import { useHydrated } from "~/lib/hooks";
 import { cn } from "~/lib/cn";
 import { AnimatedLink } from "~/components/ui/animated-link";
 import { RemixLogo } from "~/components/remix-logo";
+import { MobileMenu } from "~/components/mobile-menu";
 
 import {
   Popover,
@@ -48,7 +49,7 @@ export function Navbar({ menu, cart }: NavbarProps) {
       <StoreWideSaleMarquee />
       <header
         className={cn(
-          "max-h-(--header-height) bg-linear-to-b fixed z-10 grid w-full grid-cols-2 items-center from-black to-black/0 p-4 md:grid-cols-3 md:p-9",
+          "max-h-(--header-height) bg-linear-to-b fixed z-10 grid w-full grid-cols-[auto_1fr_auto] items-center from-black to-black/0 p-4 md:grid-cols-[1fr_auto_1fr] md:p-9",
           hasActiveSale ? "top-10" : "top-0",
         )}
       >
@@ -73,7 +74,8 @@ export function Navbar({ menu, cart }: NavbarProps) {
           </ul>
         </nav>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2 md:gap-3">
+          <MobileMenu menu={menu} />
           <CartButton cart={cart} />
         </div>
       </header>
@@ -84,21 +86,26 @@ export function Navbar({ menu, cart }: NavbarProps) {
 type HeaderMenuLinkProps = {
   title: string;
   url: string;
-  onClick?: NavLinkProps["onClick"];
-};
-function HeaderMenuLink(props: HeaderMenuLinkProps) {
-  let { url } = useRelativeUrl(props.url);
+  className?: string;
+} & Omit<NavLinkProps, "children" | "className" | "to">;
+const HeaderMenuLink = forwardRef<HTMLAnchorElement, HeaderMenuLinkProps>(
+  function HeaderMenuLink(props, ref) {
+    let { title, url: itemUrl, className, ...navLinkProps } = props;
+    let { url } = useRelativeUrl(itemUrl);
 
-  return (
-    <NavLink
-      className="text-base/tight font-semibold no-underline"
-      to={url}
-      prefetch="intent"
-    >
-      {props.title}
-    </NavLink>
-  );
-}
+    return (
+      <NavLink
+        className={cn("text-base/tight font-semibold no-underline", className)}
+        ref={ref}
+        to={url}
+        prefetch="intent"
+        {...navLinkProps}
+      >
+        {title}
+      </NavLink>
+    );
+  },
+);
 
 function CartButton({ cart: originalCart }: Pick<NavbarProps, "cart">) {
   let cart = useOptimisticCart(originalCart);

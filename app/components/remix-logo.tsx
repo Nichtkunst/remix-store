@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { clsx } from "clsx";
 
 interface RemixLogoProps {
@@ -11,46 +11,52 @@ export function RemixLogo({
   className = "",
 }: RemixLogoProps) {
   const logoState = useLogoState(animateOnScroll);
+  const activeLogoState = animateOnScroll ? logoState : "full";
+  const showMarkOnly = activeLogoState === "partial";
 
   const letterCss = clsx(
     "transform transition-all duration-300 ease-in-out",
-    animateOnScroll && logoState === "partial"
-      ? "translate-y-[-200px] opacity-0"
-      : "translate-y-[0px] opacity-100",
+    showMarkOnly ? "-translate-y-[140px] opacity-0" : "translate-y-0 opacity-100",
   );
 
   return (
     <svg
-      width="140px"
-      height="36px"
-      viewBox="0 0 700 180"
+      aria-hidden="true"
+      viewBox="0 0 1280 126"
       fill="none"
-      className={className}
+      className={clsx(
+        "block h-[15px] w-[153px] overflow-visible sm:h-5 sm:w-[203px]",
+        className,
+      )}
     >
       <path
-        className={clsx("fill-red-brand", letterCss)}
-        d="M696.11,51.95h-46.39l-21.11,29.44-20.56-29.44h-49.73l44.73,60.82-48.62,63.04h46.39l24.72-33.61,24.72,33.61h49.73l-48.89-64.99,45-58.88Z"
-      />
-      <path
-        className={clsx("fill-green-brand", letterCss)}
-        d="M244.89,131.66c-4.17,9.72-11.95,13.89-24.17,13.89-13.61,0-24.72-7.22-25.84-22.5h86.95v-12.5c0-33.61-21.95-61.93-63.34-61.93-38.61,0-67.51,28.05-67.51,67.21s28.34,63.32,68.06,63.32c32.78,0,55.56-15.83,61.95-44.16l-36.11-3.33ZM195.44,101.39c1.67-11.66,8.06-20.55,22.5-20.55,13.33,0,20.56,9.44,21.11,20.55h-43.62Z"
-      />
-      <path
-        className={clsx("fill-yellow-brand", letterCss)}
-        d="M410.33,73.06c-5.28-14.44-16.67-24.44-38.62-24.44-18.61,0-31.95,8.33-38.61,21.94v-18.61h-45v123.87h45v-60.82c0-18.61,5.28-30.83,20-30.83,13.61,0,16.95,8.89,16.95,25.83v65.82h45v-60.82c0-18.61,5-30.83,20-30.83,13.61,0,16.67,8.89,16.67,25.83v65.82h45v-77.76c0-25.83-10-49.44-44.17-49.44-20.83,0-35.56,10.55-42.23,24.44Z"
+        className={clsx(
+          "transition-colors duration-300 ease-in-out",
+          showMarkOnly ? "fill-white" : "fill-blue-brand",
+        )}
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M237.117 0.142578L237.114 0.145508V0.148438C270.246 0.148438 293.134 15.0176 288.241 33.3604L284.926 45.7803C280.032 64.123 249.21 78.9922 216.078 78.9922H212.688L282.282 124.627H170.547L114.289 81.2012C112.037 79.7571 109.423 78.9902 106.751 78.9902H12.7041L21.5664 45.7764H186.293C192.486 45.7764 198.251 42.9954 199.167 39.5654H199.17C200.085 36.1354 195.804 33.3545 189.608 33.3545H24.8799L33.7402 0.142578H237.117ZM90.877 90.4551C93.9979 90.4551 96.2711 93.4278 95.4629 96.4561L87.9492 124.623H0.53125L9.64648 90.4551H90.877Z"
       />
       <path
         className={clsx("fill-pink-brand", letterCss)}
-        d="M504.93,51.95v123.87h45V51.95h-45ZM504.65,40.29h45.56V.85h-45.56v39.44Z"
+        d="M895.661 125.247L928.962 0.976562H1016.89L983.381 125.247H895.661Z"
       />
       <path
-        className={clsx(
-          "transition-color transform duration-300 ease-in-out",
-          animateOnScroll && logoState === "partial"
-            ? "fill-white"
-            : "fill-blue-brand",
-        )}
-        d="M145.12,135.55c1.57,20.18,1.57,29.64,1.57,39.97h-46.7c0-2.25.04-4.31.08-6.39.13-6.49.26-13.25-.79-26.91-1.39-20-10-24.44-25.84-24.44H0v-36.38h75.67c20,0,30-6.08,30-22.19,0-14.16-10-22.75-30-22.75H0V.85h84c45.28,0,67.78,21.39,67.78,55.55,0,25.55-15.83,42.21-37.23,44.99,18.06,3.61,28.61,13.89,30.56,34.16ZM0,175.52v-28.08h49.38c8.25,0,10.04,7.07,10.04,10.72v17.36H0Z"
+        className={clsx("fill-yellow-brand", letterCss)}
+        d="M564.053 0.976807H848.738C886.912 0.976807 913.31 18.0335 907.624 39.1513L884.476 125.247H796.755L808.736 80.7778L815.64 55.3958L818.279 45.6491C819.904 39.3544 811.985 34.0749 800.41 34.0749H775.435C775.232 35.6994 775.232 37.3238 774.622 39.1513L751.677 125.247H663.754L675.734 80.7778L682.638 55.3958L685.278 45.6491C686.902 39.3544 678.983 34.0749 667.409 34.0749H643.042L618.472 125.247H530.752L564.053 0.976807Z"
+      />
+      <path
+        className={clsx("fill-red-brand", letterCss)}
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M1147.53 21.5391L1177.72 1.72852H1279.7L1187.2 62.4297L1247.28 124.354H1145.3L1124.89 103.32L1092.84 124.354H990.856L1085.22 62.4297L1026.33 1.72852H1128.31L1147.53 21.5391Z"
+      />
+      <path
+        className={clsx("fill-green-brand", letterCss)}
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M545.101 34.0745H403.164C403.031 34.0745 402.898 34.0759 402.765 34.0774H382.405L379.167 46.4348H379.211L379.205 46.4612H541.649L532.917 79.762H370.27L370.067 80.7776C368.24 87.0722 376.159 92.1487 387.733 92.1487H529.465L520.532 125.246H339.406C301.231 125.246 274.833 108.189 280.519 87.2747L293.312 39.1506C293.598 38.0866 293.961 37.0332 294.396 35.9915L303.571 0.976807H372.569C372.615 0.976757 372.661 0.97583 372.706 0.97583H553.832L545.101 34.0745Z"
       />
     </svg>
   );
@@ -58,15 +64,10 @@ export function RemixLogo({
 
 // Custom hook for how much of the logo is shown based on scroll position
 function useLogoState(enableAnimation: boolean) {
-  // Start in partial state, as it shows the whole logo
   const [logoState, setLogoState] = useState<"partial" | "full">("partial");
-  const lastScrollY = useRef(0);
 
   useEffect(() => {
     if (!enableAnimation) return;
-
-    // Set the last scroll position after the first render
-    lastScrollY.current = window.scrollY;
 
     let throttleTimeout: NodeJS.Timeout | null = null;
 
@@ -79,21 +80,15 @@ function useLogoState(enableAnimation: boolean) {
       }, delay);
     };
 
-    const handleScroll = () => {
-      throttle(() => {
-        const currentScrollY = window.scrollY;
-
-        let scrollOffset = 20;
-        if (currentScrollY > lastScrollY.current + scrollOffset) {
-          setLogoState("full");
-        } else if (currentScrollY < lastScrollY.current - scrollOffset) {
-          setLogoState("partial");
-        }
-
-        lastScrollY.current = currentScrollY;
-      }, 100);
+    const updateLogoState = () => {
+      setLogoState(window.scrollY > 20 ? "full" : "partial");
     };
 
+    const handleScroll = () => {
+      throttle(updateLogoState, 100);
+    };
+
+    updateLogoState();
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {

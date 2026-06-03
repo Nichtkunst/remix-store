@@ -15,6 +15,7 @@ import { usePrefersReducedMotion, useScrollPercentage } from "~/lib/hooks";
 import { AnimatedLink } from "~/components/ui/animated-link";
 import { generateMeta } from "~/lib/meta";
 import { ProductGrid } from "~/components/product-grid";
+import { RemixRunner } from "~/components/remix-runner";
 const SnowField = lazy(() => import("~/components/snow-field"));
 import type { Route } from "./+types/($locale)._index";
 
@@ -108,48 +109,58 @@ export default function Homepage({ loaderData }: Route.ComponentProps) {
   );
 }
 
-let heroHeight = 1600;
+let defaultHeroHeight = 1600;
+let heroParallaxRatio = 0.5;
+let mastheadFadeSpeed = 4;
+let heroTextSwitchProgress = 0.3;
+let productFrameScrollSpeed = 1.5;
 
 function Hero({ masthead, assetImages, product }: HeroDataProps) {
   const heroRef = useRef<HTMLDivElement>(null);
   let scrollPercentage = useScrollPercentage(heroRef);
 
   let translateY = Math.floor(
-    (heroRef.current?.offsetHeight || 0) * scrollPercentage * 0.5,
+    (heroRef.current?.offsetHeight || 0) *
+      scrollPercentage *
+      heroParallaxRatio,
   );
-  let opacity = Math.max(0, 1 - scrollPercentage * 4);
+  let opacity = Math.max(0, 1 - scrollPercentage * mastheadFadeSpeed);
 
-  let highlightSwitch = scrollPercentage > 0.3;
+  let highlightSwitch = scrollPercentage > heroTextSwitchProgress;
 
   // Calculate which frame to show based on scroll percentage
   let frameIndex = Math.min(
-    Math.floor(scrollPercentage * 1.5 * assetImages.length),
+    Math.floor(scrollPercentage * productFrameScrollSpeed * assetImages.length),
     assetImages.length - 1,
   );
 
   return (
     <div
       ref={heroRef}
-      className="relative h-screen max-h-[1200px] overflow-hidden bg-linear-[180deg,var(--color-black),#162D1A] pt-24 md:top-7 md:h-[1200px] lg:h-[1600px] lg:max-h-[1600px] 2xl:h-[1800px] 2xl:max-h-[1800px]"
+      className="relative h-screen max-h-[1200px] overflow-hidden bg-black pt-24 md:top-7 md:h-[1200px] lg:h-[1600px] lg:max-h-[1600px] 2xl:h-[1800px] 2xl:max-h-[1800px]"
     >
       <div
         className="fixed w-full"
         style={{
-          height: `${heroRef.current?.offsetHeight || heroHeight}px`,
+          height: `${heroRef.current?.offsetHeight || defaultHeroHeight}px`,
           transform: `translate3d(0, -${translateY}px, 0)`,
         }}
       >
+        {/* Art-directed masthead positioning keeps the Shopify-managed image anchored to the hero crop across breakpoints. */}
         <HydrogenImage
-          sizes="100vw lg:86vw"
-          className="relative left-1/2 h-auto min-w-[140%] -translate-x-1/2 object-cover object-center md:min-w-[120%] lg:max-w-[86%] lg:min-w-[86%]"
-          loading="eager"
           data={masthead}
+          sizes="100vw"
+          alt=""
+          aria-hidden="true"
+          className="relative top-5 left-1/2 h-auto min-w-[185.5%] -translate-x-1/2 -translate-y-[42%] object-cover object-center sm:min-w-[175%] md:min-w-[159%] lg:max-w-[114.5%] lg:min-w-[114.5%] lg:-translate-y-[36%]"
+          loading="eager"
           style={{
             opacity,
           }}
         />
 
-        <h1 className="3xl:mt-80 mt-48 flex max-h-min w-full flex-nowrap items-start justify-center gap-8 px-4 text-2xl font-extrabold text-white md:mt-[250px] md:gap-64 md:px-9 md:text-5xl lg:mt-[330px] lg:gap-64 lg:text-8xl xl:mt-72 xl:gap-80 xl:text-8xl 2xl:mt-80 2xl:gap-96">
+        {/* Text offsets are paired with the masthead crop so the copy sits over the sign artwork as the hero scrolls. */}
+        <h1 className="mt-0 flex max-h-min w-full -translate-y-[240px] flex-nowrap items-start justify-between gap-8 px-4 text-2xl font-extrabold tracking-[-0.03em] text-white md:-translate-y-[288px] md:px-9 md:text-5xl lg:-translate-y-[386px] lg:justify-center lg:gap-64 lg:text-8xl xl:gap-80 xl:text-8xl 2xl:gap-96">
           <span className="sr-only">Remix</span>
           <HeroText highlight={!highlightSwitch}>
             software
@@ -223,6 +234,7 @@ let RotatingProduct = memo(
         .catch(() => setImagesLoaded("error"));
     }, [assetImages, imagesLoaded, prefersReducedMotion]);
 
+    // Art-directed product offsets keep each scroll frame aligned with the masthead composition.
     return (
       <Link
         to={href("/:locale?/products/:handle", { handle: product.handle })}
@@ -324,22 +336,13 @@ function LookbookEntry({ image, product }: LookbookEntryProps) {
   );
 }
 
-// not sure if this is something we should be loading from the storefront
-let loadRunnerImage = {
-  altText: "Silhouette of a runner made of white circles",
-  height: 1081,
-  width: 1081,
-  url: "https://cdn.shopify.com/s/files/1/0655/4127/5819/files/load_runner.gif?v=1739987429",
-};
-
 function LoadRunner() {
   return (
     <div className="flex h-[390px] items-center justify-center gap-4 bg-[#143126] md:h-[480px] lg:h-[800px]">
       <div className="3xl:w-[50%] w-[65%] xl:w-[60%] 2xl:w-[55%]">
-        <HydrogenImage
-          className="relative left-1/2 h-full w-full max-w-[90%] -translate-x-1/2"
-          sizes="65vw"
-          data={loadRunnerImage}
+        <RemixRunner
+          alt="Silhouette of a runner made of white circles"
+          className="relative left-1/2 h-full w-full max-w-[90%] -translate-x-1/2 object-contain"
         />
       </div>
     </div>
