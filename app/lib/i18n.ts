@@ -7,7 +7,10 @@ export interface I18nLocale extends I18nBase {
 export function getLocaleFromRequest(request: Request): I18nLocale {
   const url = new URL(request.url);
   const firstPathPart =
-    url.pathname.split("/")[1]?.replace(/\.data$/i, "").toUpperCase() ?? "";
+    url.pathname
+      .split("/")[1]
+      ?.replace(/\.data$/i, "")
+      .toUpperCase() ?? "";
 
   type I18nFromUrl = [I18nLocale["language"], I18nLocale["country"]];
 
