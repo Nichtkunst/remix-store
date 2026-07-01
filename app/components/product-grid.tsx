@@ -1,6 +1,7 @@
 import { Await, href, Link } from "react-router";
 import { Image as HydrogenImage, Money } from "@shopify/hydrogen";
 import { clsx } from "clsx";
+import { cva } from "class-variance-authority";
 import { Suspense } from "react";
 
 import type { ProductImageFragment } from "storefrontapi.generated";
@@ -97,12 +98,12 @@ type ProductGridItemProps = {
 };
 
 function ProductGridItem({ product }: ProductGridItemProps) {
-  let { handle, title, price } = product;
+  let { handle, title, price, compareAtPrice } = product;
 
   return (
     <ProductGridItemLayout className="group">
       <ProductImages images={product.images.nodes} />
-      <div className="flex h-14 flex-col items-center justify-center gap-2.5 text-base/none text-white">
+      <div className="flex min-h-16 flex-col items-center justify-center gap-2.5 text-center text-base/none text-white">
         <Link
           prefetch="intent"
           to={href("/:locale?/products/:handle", { handle })}
@@ -111,7 +112,11 @@ function ProductGridItem({ product }: ProductGridItemProps) {
           <span className="absolute inset-0" />
           {title}
         </Link>
-        <ProductPrice price={price} />
+        <ProductPrice
+          price={price}
+          compareAtPrice={compareAtPrice}
+          direction="row"
+        />
       </div>
     </ProductGridItemLayout>
   );
@@ -160,17 +165,38 @@ function ProductImages({ images }: ProductImagesProps) {
 export type ProductPriceProps = {
   price: MoneyV2 | null;
   compareAtPrice?: MoneyV2 | null;
-  /**
-   * Where the product is being used -- a bit hacky unfortunately
-   * @default "product"
-   */
-  layout?: "cart" | "product";
+  /** Arrangement of the struck-through original vs. sale price. @default "column" */
+  direction?: "row" | "column";
+  /** Sale-price emphasis. "muted" avoids shouting in dense lists (e.g. cart). @default "prominent" */
+  tone?: "prominent" | "muted";
 };
+
+let priceContainer = cva("flex w-max", {
+  variants: {
+    direction: {
+      row: "flex-row items-baseline gap-1.5",
+      column: "flex-col items-end",
+    },
+  },
+});
+
+let strikeThrough = cva("line-through", {
+  variants: {
+    tone: { prominent: "text-white", muted: "text-white/50" },
+  },
+});
+
+let salePrice = cva("", {
+  variants: {
+    tone: { prominent: "text-red-brand font-bold", muted: "text-white" },
+  },
+});
 
 export function ProductPrice({
   price,
   compareAtPrice,
-  layout = "product",
+  direction = "column",
+  tone = "prominent",
 }: ProductPriceProps) {
   if (!price) return null;
 
@@ -179,23 +205,11 @@ export function ProductPrice({
 
   if (compareAtPrice && priceAmount < compareAtPriceAmount) {
     return (
-      <div className="flex w-max flex-col items-end">
-        <s
-          className={clsx(
-            "line-through",
-            layout === "cart" && "text-white/50",
-            layout === "product" && "text-white",
-          )}
-        >
+      <div className={priceContainer({ direction })}>
+        <s className={strikeThrough({ tone })}>
           <Money data={compareAtPrice} />
         </s>
-        <Money
-          className={clsx(
-            layout === "cart" && "text-white",
-            layout === "product" && "text-red-brand font-bold",
-          )}
-          data={price}
-        />
+        <Money className={salePrice({ tone })} data={price} />
       </div>
     );
   }
